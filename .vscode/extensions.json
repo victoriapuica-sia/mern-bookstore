@@ -1,0 +1,15 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "dsznajder.es7-react-js-snippets",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    "humao.rest-client",
+    "oxc.oxc-vscode",
+    "usernamehw.errorlens",
+    "vitest.explorer",
+    "mikestead.dotenv",
+    "pranaygp.vscode-css-peek",
+    "bierner.markdown-mermaid"
+  ]
+}
