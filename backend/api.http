@@ -1,0 +1,19 @@
+@baseUrl = http://localhost:3000
+
+### Informatii despre API
+GET {{baseUrl}}/
+
+### Toate produsele
+GET {{baseUrl}}/api/products
+
+### Filtrare dupa categorie
+GET {{baseUrl}}/api/products?category=React
+
+### Un singur produs
+GET {{baseUrl}}/api/products/3
+
+### ID invalid - 400
+GET {{baseUrl}}/api/products/abc
+
+### Produs inexistent - 404
+GET {{baseUrl}}/api/products/999
