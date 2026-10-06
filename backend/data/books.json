@@ -15,7 +15,12 @@
       "featured": true,
       "rating": 4.5,
       "reviewCount": 128,
-      "tags": ["mongodb", "nosql", "database", "backend"],
+      "tags": [
+        "mongodb",
+        "nosql",
+        "database",
+        "backend"
+      ],
       "specifications": {
         "pages": 512,
         "language": "English",
@@ -41,7 +46,12 @@
       "featured": false,
       "rating": 4.3,
       "reviewCount": 89,
-      "tags": ["express", "nodejs", "web-framework", "api"],
+      "tags": [
+        "express",
+        "nodejs",
+        "web-framework",
+        "api"
+      ],
       "specifications": {
         "pages": 256,
         "language": "English",
@@ -67,7 +77,12 @@
       "featured": true,
       "rating": 4.7,
       "reviewCount": 156,
-      "tags": ["react", "frontend", "javascript", "ui"],
+      "tags": [
+        "react",
+        "frontend",
+        "javascript",
+        "ui"
+      ],
       "specifications": {
         "pages": 222,
         "language": "English",
@@ -93,7 +108,12 @@
       "featured": true,
       "rating": 4.8,
       "reviewCount": 203,
-      "tags": ["nodejs", "design-patterns", "backend", "architecture"],
+      "tags": [
+        "nodejs",
+        "design-patterns",
+        "backend",
+        "architecture"
+      ],
       "specifications": {
         "pages": 454,
         "language": "English",
@@ -119,7 +139,11 @@
       "featured": false,
       "rating": 4.4,
       "reviewCount": 142,
-      "tags": ["react", "javascript", "components"],
+      "tags": [
+        "react",
+        "javascript",
+        "components"
+      ],
       "specifications": {
         "pages": 350,
         "language": "English",
@@ -145,7 +169,12 @@
       "featured": false,
       "rating": 4.2,
       "reviewCount": 76,
-      "tags": ["mongodb", "patterns", "optimization", "database"],
+      "tags": [
+        "mongodb",
+        "patterns",
+        "optimization",
+        "database"
+      ],
       "specifications": {
         "pages": 190,
         "language": "English",
@@ -171,7 +200,12 @@
       "featured": false,
       "rating": 4.6,
       "reviewCount": 98,
-      "tags": ["nodejs", "async", "microservices", "backend"],
+      "tags": [
+        "nodejs",
+        "async",
+        "microservices",
+        "backend"
+      ],
       "specifications": {
         "pages": 268,
         "language": "English",
@@ -197,7 +231,12 @@
       "featured": true,
       "rating": 4.5,
       "reviewCount": 167,
-      "tags": ["react", "fullstack", "mongodb", "projects"],
+      "tags": [
+        "react",
+        "fullstack",
+        "mongodb",
+        "projects"
+      ],
       "specifications": {
         "pages": 470,
         "language": "English",
@@ -223,7 +262,12 @@
       "featured": false,
       "rating": 4.1,
       "reviewCount": 85,
-      "tags": ["express", "api", "web-development", "guide"],
+      "tags": [
+        "express",
+        "api",
+        "web-development",
+        "guide"
+      ],
       "specifications": {
         "pages": 284,
         "language": "English",
@@ -249,7 +293,12 @@
       "featured": true,
       "rating": 4.3,
       "reviewCount": 134,
-      "tags": ["mern", "fullstack", "quickstart", "tutorial"],
+      "tags": [
+        "mern",
+        "fullstack",
+        "quickstart",
+        "tutorial"
+      ],
       "specifications": {
         "pages": 302,
         "language": "English",
@@ -275,7 +324,12 @@
       "featured": true,
       "rating": 4.7,
       "reviewCount": 189,
-      "tags": ["mern", "professional", "enterprise", "advanced"],
+      "tags": [
+        "mern",
+        "professional",
+        "enterprise",
+        "advanced"
+      ],
       "specifications": {
         "pages": 542,
         "language": "English",
@@ -301,7 +355,12 @@
       "featured": false,
       "rating": 4.4,
       "reviewCount": 112,
-      "tags": ["mongodb", "production", "sharding", "modeling"],
+      "tags": [
+        "mongodb",
+        "production",
+        "sharding",
+        "modeling"
+      ],
       "specifications": {
         "pages": 395,
         "language": "English",
@@ -327,7 +386,11 @@
       "featured": false,
       "rating": 4.6,
       "reviewCount": 64,
-      "tags": ["react", "hooks", "javascript"],
+      "tags": [
+        "react",
+        "hooks",
+        "javascript"
+      ],
       "specifications": {
         "pages": 310,
         "language": "English",
@@ -337,11 +400,42 @@
       },
       "createdAt": "2025-09-13T08:00:00.000Z",
       "updatedAt": "2025-09-28T10:00:00.000Z"
+    },
+    {
+      "id": 14,
+      "title": "JavaScript: The Definitive Guide",
+      "author": "David Flanagan",
+      "isbn": "978-1491952023",
+      "category": "MERN Stack",
+      "price": 109.99,
+      "discountPrice": null,
+      "description": "Ghid complet pentru JavaScript modern, de la conceptele de baza pana la utilizarea limbajului in aplicatii web complexe si proiecte full-stack.",
+      "imageUrl": "https://covers.openlibrary.org/b/isbn/9781491952023-L.jpg",
+      "stock": 20,
+      "isActive": false,
+      "featured": false,
+      "rating": 4.6,
+      "reviewCount": 95,
+      "tags": [
+        "javascript",
+        "web",
+        "programming",
+        "fullstack"
+      ],
+      "specifications": {
+        "pages": 706,
+        "language": "English",
+        "publisher": "O'Reilly Media",
+        "year": 2020,
+        "format": "Paperback"
+      },
+      "createdAt": "2026-10-06T19:40:08.243Z",
+      "updatedAt": "2026-10-06T19:42:31.716Z"
     }
   ],
   "metadata": {
-    "totalProducts": 13,
-    "lastUpdated": "2025-09-28T10:00:00.000Z",
+    "totalProducts": 14,
+    "lastUpdated": "2026-10-06T19:40:08.243Z",
     "version": "2.1.0",
     "currency": "RON",
     "shippingCost": 19.99

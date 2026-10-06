@@ -2,15 +2,17 @@
  * MERN BOOKSTORE - API v1 (Laboratorul 2)
  * Server Express.js pentru catalogul de carti.
  *
- * Functionalitati adaugate in aceasta etapa:
- * - GET /              - informatii despre API
- * - GET /api           - acelasi raspuns
- * - GET /api/products  - produsele active, cu filtrare optionala dupa categorie
- * - GET /api/products/:id - un singur produs activ
- * - raspuns JSON pentru rute inexistente (404) si pentru erori (500)
+ * Functionalitati:
+ * - GET /                    - informatii despre API
+ * - GET /api                 - acelasi raspuns
+ * - GET /api/products        - produsele active
+ * - filtrare dupa categorie
+ * - filtrare featured=true
+ * - GET /api/products/:id    - un singur produs activ
+ * - GET /api/categories      - lista categoriilor
+ * - raspuns JSON pentru rute inexistente si erori
  */
 
-// 1. Variabilele de mediu din .env se incarca INAINTE
 require('dotenv').config({ quiet: true });
 
 const express = require('express');
@@ -21,19 +23,17 @@ const morgan = require('morgan');
 const fs = require('fs');
 const path = require('path');
 
-// 2. Configurare
+// Configurare
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Una sau mai multe origini permise, separate prin virgula
 const CORS_ORIGIN = (process.env.CORS_ORIGIN || 'http://localhost:5173')
   .split(',')
   .map((origin) => origin.trim());
 
-// Caile catre fisierele de date
 const PRODUCTS_FILE = path.join(__dirname, 'data', 'books.json');
 
-// 3. Middleware - ordinea este importanta!
+// Middleware
 app.use(helmet());
 app.use(cors({ origin: CORS_ORIGIN }));
 app.use(compression());
@@ -44,12 +44,7 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 /**
- * FUNCTII HELPER PENTRU DATE
- */
-
-/**
- * Citeste intregul catalog (produse + metadata).
- * @returns {{products: Array, metadata: Object}}
+ * Citeste catalogul complet
  */
 const readCatalog = () => {
   try {
@@ -62,22 +57,20 @@ const readCatalog = () => {
     };
   } catch (error) {
     console.error('Eroare la citirea catalogului:', error.message);
-    return { products: [], metadata: {} };
+    return {
+      products: [],
+      metadata: {},
+    };
   }
 };
 
 /**
- * Returneaza doar lista de produse.
- * @returns {Array}
+ * Returneaza doar produsele
  */
 const readProducts = () => readCatalog().products;
 
 /**
- * Salveaza produsele PASTRAND metadatele
- * (totalProducts si lastUpdated se actualizeaza).
- * O vom folosi din Laboratorul 6, la administrarea produselor.
- *
- * @param {Array} products
+ * Salveaza produsele pastrand metadata
  */
 const saveProducts = (products) => {
   const { metadata } = readCatalog();
@@ -96,19 +89,14 @@ const saveProducts = (products) => {
 };
 
 /**
- * RUTE PENTRU PRODUSE
- */
-
-/**
- * GET /api/products - toate produsele active
- * Parametri de interogare (query string):
- * - category: filtrare dupa categorie (fara a tine cont de majuscule)
- *
- * Exemplu: /api/products?category=React
+ * GET /api/products
+ * Filtre optionale:
+ * category=React
+ * featured=true
  */
 app.get('/api/products', (req, res) => {
   try {
-    const { category } = req.query;
+    const { category, featured } = req.query;
 
     let products = readProducts().filter((p) => p.isActive === true);
 
@@ -116,21 +104,31 @@ app.get('/api/products', (req, res) => {
       products = products.filter((p) => p.category.toLowerCase() === category.toLowerCase());
     }
 
+    if (featured === 'true') {
+      products = products.filter((p) => p.featured === true);
+    }
+
     res.json({
       success: true,
       products,
       total: products.length,
-      filters: { category: category || null },
+      filters: {
+        category: category || null,
+        featured: featured || null,
+      },
     });
   } catch (error) {
     console.error('Eroare la obtinerea produselor:', error);
-    res.status(500).json({ success: false, message: 'Eroare server' });
+
+    res.status(500).json({
+      success: false,
+      message: 'Eroare server',
+    });
   }
 });
 
 /**
- * GET /api/products/:id - un singur produs activ
- * Exemplu: /api/products/3
+ * GET /api/products/:id
  */
 app.get('/api/products/:id', (req, res) => {
   const id = Number(req.params.id);
@@ -151,11 +149,14 @@ app.get('/api/products/:id', (req, res) => {
     });
   }
 
-  res.json({ success: true, product });
+  res.json({
+    success: true,
+    product,
+  });
 });
 
 /**
- * GET / si GET /api - informatii despre API
+ * GET / si GET /api
  */
 const apiInfo = (req, res) => {
   res.json({
@@ -165,7 +166,9 @@ const apiInfo = (req, res) => {
     endpoints: {
       'GET /api/products': 'Toate produsele active',
       'GET /api/products?category=React': 'Filtrare dupa categorie',
+      'GET /api/products?featured=true': 'Produsele recomandate',
       'GET /api/products/:id': 'Un singur produs',
+      'GET /api/categories': 'Lista categoriilor',
     },
     author: 'SDBIS',
   });
@@ -175,10 +178,35 @@ app.get('/', apiInfo);
 app.get('/api', apiInfo);
 
 /**
- * TRATAREA ERORILOR
+ * GET /api/categories
  */
+app.get('/api/categories', (req, res) => {
+  const products = readProducts().filter((p) => p.isActive === true);
 
-// 404 - nicio ruta de mai sus nu a raspuns
+  const categories = products.reduce((result, product) => {
+    const existing = result.find((item) => item.name === product.category);
+
+    if (existing) {
+      existing.count += 1;
+    } else {
+      result.push({
+        name: product.category,
+        count: 1,
+      });
+    }
+
+    return result;
+  }, []);
+
+  res.json({
+    success: true,
+    categories,
+  });
+});
+
+/**
+ * Ruta inexistenta - 404
+ */
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -186,7 +214,9 @@ app.use((req, res) => {
   });
 });
 
-// 500 - middleware de eroare (are 4 parametri)
+/**
+ * Tratarea erorilor
+ */
 app.use((err, req, res, next) => {
   if (err.type === 'entity.parse.failed') {
     return res.status(400).json({
@@ -203,7 +233,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Pornirea serverului (nu si in timpul testelor automate)
+// Pornirea serverului
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
     console.log('\nMERN BookStore API v1');
@@ -212,5 +242,4 @@ if (process.env.NODE_ENV !== 'test') {
   });
 }
 
-// Exportam aplicatia pentru testare (Laboratorul 8)
 module.exports = app;
