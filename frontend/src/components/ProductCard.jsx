@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { PLACEHOLDER_IMAGE } from '../config';
 import { formatPrice, discountPercent } from '../utils/products';
 import './ProductCard.css';
@@ -81,13 +82,19 @@ const ProductCard = ({ product, onAddToCart }) => {
       </div>
 
       <div className="product-info">
-        <h3>{title}</h3>
+        <h3>
+          <Link to={`/products/${id}`} className="product-title-link">
+            {title}
+          </Link>
+        </h3>
+
         <p className="author">de {author}</p>
 
         <div className="price-section">
           {discount > 0 ? (
             <>
               <span className="original-price">{formatPrice(price)}</span>
+
               <span className="current-price">{formatPrice(discountPrice)}</span>
             </>
           ) : (

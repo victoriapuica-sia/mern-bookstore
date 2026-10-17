@@ -183,3 +183,12 @@
     transition: none;
   }
 }
+.product-title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.product-title-link:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+}

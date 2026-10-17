@@ -1,14 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { API_URL } from '../config';
 import ProductCard from './ProductCard';
 import SearchFilterSort from './SearchFilterSort';
 import './BookCatalog.css';
 
-/**
- * Pagina principala a magazinului:
- * incarca produsele din API si le afiseaza.
- */
+const SORT_MAP = {
+  name: 'title_asc',
+  'price-low': 'price_asc',
+  'price-high': 'price_desc',
+  newest: 'newest',
+};
+
 const BookCatalog = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -16,15 +19,50 @@ const BookCatalog = () => {
   const [error, setError] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
 
+  const [serverFilters, setServerFilters] = useState({
+    search: '',
+    category: 'all',
+    sortBy: 'name',
+  });
+
+  const handleServerFiltersChange = useCallback((nextFilters) => {
+    setServerFilters((previousFilters) => {
+      const sameFilters =
+        previousFilters.search === nextFilters.search &&
+        previousFilters.category === nextFilters.category &&
+        previousFilters.sortBy === nextFilters.sortBy;
+
+      return sameFilters ? previousFilters : nextFilters;
+    });
+  }, []);
+
   useEffect(() => {
     const controller = new AbortController();
 
     const fetchProducts = async () => {
-      setLoading(true);
       setError(null);
 
       try {
+        const params = {};
+
+        const search = serverFilters.search.trim();
+
+        if (search) {
+          params.search = search;
+        }
+
+        if (serverFilters.category !== 'all') {
+          params.category = serverFilters.category;
+        }
+
+        const serverSort = SORT_MAP[serverFilters.sortBy];
+
+        if (serverSort) {
+          params.sort = serverSort;
+        }
+
         const response = await axios.get(`${API_URL}/api/products`, {
+          params,
           signal: controller.signal,
         });
 
@@ -37,9 +75,12 @@ const BookCatalog = () => {
           setError(response.data.message || 'Eroare la incarcarea produselor');
         }
       } catch (error) {
-        if (error.name === 'CanceledError') return;
+        if (error.name === 'CanceledError') {
+          return;
+        }
 
         setError('Eroare la incarcarea produselor');
+
         console.error('Eroare la obtinerea produselor:', error);
       } finally {
         if (!controller.signal.aborted) {
@@ -50,8 +91,10 @@ const BookCatalog = () => {
 
     fetchProducts();
 
-    return () => controller.abort();
-  }, [reloadKey]);
+    return () => {
+      controller.abort();
+    };
+  }, [reloadKey, serverFilters]);
 
   if (loading) {
     return <div className="loading">Se incarca produsele...</div>;
@@ -65,7 +108,7 @@ const BookCatalog = () => {
         <button
           type="button"
           className="btn btn-primary"
-          onClick={() => setReloadKey((k) => k + 1)}
+          onClick={() => setReloadKey((key) => key + 1)}
         >
           Reincarca
         </button>
@@ -79,13 +122,18 @@ const BookCatalog = () => {
         <div className="header-content">
           <div className="logo">
             <span>MERN BookStore</span>
+
             <span className="version-badge">E-Commerce</span>
           </div>
         </div>
       </header>
 
       <main>
-        <SearchFilterSort products={products} onFilteredProducts={setFilteredProducts} />
+        <SearchFilterSort
+          products={products}
+          onFilteredProducts={setFilteredProducts}
+          onServerFiltersChange={handleServerFiltersChange}
+        />
 
         <p className="results-count" aria-live="polite">
           {filteredProducts.length}{' '}
@@ -105,7 +153,7 @@ const BookCatalog = () => {
             <p>
               {products.length > 0
                 ? 'Niciun produs nu corespunde filtrelor. Modificati criteriile de cautare.'
-                : 'Magazinul este in curs de actualizare. Reveniti curand!'}
+                : 'Niciun produs nu corespunde cautarii.'}
             </p>
           </div>
         )}
