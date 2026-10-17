@@ -1,16 +1,18 @@
 /**
- * MERN BOOKSTORE - API v1 (Laboratorul 2)
- * Server Express.js pentru catalogul de carti.
+ * MERN BOOKSTORE - API v1
+ * Backend pentru catalogul de carti.
  *
  * Functionalitati:
  * - GET /                    - informatii despre API
- * - GET /api                 - acelasi raspuns
+ * - GET /api                 - informatii despre API
  * - GET /api/products        - produsele active
  * - filtrare dupa categorie
  * - filtrare featured=true
+ * - cautare dupa titlu si autor
+ * - sortare
  * - GET /api/products/:id    - un singur produs activ
  * - GET /api/categories      - lista categoriilor
- * - raspuns JSON pentru rute inexistente si erori
+ * - tratarea erorilor 400, 404 si 500
  */
 
 require('dotenv').config({ quiet: true });
@@ -57,6 +59,7 @@ const readCatalog = () => {
     };
   } catch (error) {
     console.error('Eroare la citirea catalogului:', error.message);
+
     return {
       products: [],
       metadata: {},
@@ -89,23 +92,81 @@ const saveProducts = (products) => {
 };
 
 /**
+ * Pretul efectiv:
+ * pretul redus daca exista, altfel pretul normal
+ */
+const effectivePrice = (product) => product.discountPrice ?? product.price;
+
+/**
+ * Variantele de sortare acceptate
+ */
+const SORT_OPTIONS = {
+  price_asc: (a, b) => effectivePrice(a) - effectivePrice(b),
+  price_desc: (a, b) => effectivePrice(b) - effectivePrice(a),
+  title_asc: (a, b) => a.title.localeCompare(b.title, 'ro'),
+  title_desc: (a, b) => b.title.localeCompare(a.title, 'ro'),
+  newest: (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+};
+
+/**
+ * Curata valorile primite prin query string
+ */
+const queryText = (value) => (typeof value === 'string' ? value.trim() : '');
+
+/**
  * GET /api/products
- * Filtre optionale:
+ *
+ * Parametri optionali:
  * category=React
  * featured=true
+ * search=react
+ * sort=price_asc
  */
 app.get('/api/products', (req, res) => {
   try {
-    const { category, featured } = req.query;
+    const category = queryText(req.query.category);
+    const featured = queryText(req.query.featured);
+    const search = queryText(req.query.search);
+    const sort = queryText(req.query.sort);
 
-    let products = readProducts().filter((p) => p.isActive === true);
-
-    if (category) {
-      products = products.filter((p) => p.category.toLowerCase() === category.toLowerCase());
+    // Verificam daca sortarea este valida
+    if (sort && !SORT_OPTIONS[sort]) {
+      return res.status(400).json({
+        success: false,
+        message: `Sortare invalida: "${sort}"`,
+        allowedSorts: Object.keys(SORT_OPTIONS),
+      });
     }
 
+    // Doar produsele active
+    let products = readProducts().filter((product) => product.isActive === true);
+
+    // Filtrare dupa categorie
+    if (category) {
+      products = products.filter(
+        (product) => product.category.toLowerCase() === category.toLowerCase()
+      );
+    }
+
+    // Doar produsele recomandate
     if (featured === 'true') {
-      products = products.filter((p) => p.featured === true);
+      products = products.filter((product) => product.featured === true);
+    }
+
+    // Cautare dupa titlu sau autor
+    if (search) {
+      const keyword = search.toLowerCase();
+
+      products = products.filter(
+        (product) =>
+          product.title.toLowerCase().includes(keyword) ||
+          product.author.toLowerCase().includes(keyword)
+      );
+    }
+
+    // Sortare
+    if (sort) {
+      products = products.toSorted(SORT_OPTIONS[sort]);
     }
 
     res.json({
@@ -115,6 +176,8 @@ app.get('/api/products', (req, res) => {
       filters: {
         category: category || null,
         featured: featured || null,
+        search: search || null,
+        sort: sort || null,
       },
     });
   } catch (error) {
@@ -140,7 +203,7 @@ app.get('/api/products/:id', (req, res) => {
     });
   }
 
-  const product = readProducts().find((p) => p.id === id && p.isActive === true);
+  const product = readProducts().find((product) => product.id === id && product.isActive === true);
 
   if (!product) {
     return res.status(404).json({
@@ -167,6 +230,8 @@ const apiInfo = (req, res) => {
       'GET /api/products': 'Toate produsele active',
       'GET /api/products?category=React': 'Filtrare dupa categorie',
       'GET /api/products?featured=true': 'Produsele recomandate',
+      'GET /api/products?search=react': 'Cautare dupa titlu sau autor',
+      'GET /api/products?sort=price_asc': 'Sortare dupa pret crescator',
       'GET /api/products/:id': 'Un singur produs',
       'GET /api/categories': 'Lista categoriilor',
     },
@@ -181,7 +246,7 @@ app.get('/api', apiInfo);
  * GET /api/categories
  */
 app.get('/api/categories', (req, res) => {
-  const products = readProducts().filter((p) => p.isActive === true);
+  const products = readProducts().filter((product) => product.isActive === true);
 
   const categories = products.reduce((result, product) => {
     const existing = result.find((item) => item.name === product.category);

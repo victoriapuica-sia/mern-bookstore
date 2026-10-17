@@ -9,6 +9,30 @@ GET {{baseUrl}}/api/products
 ### Filtrare dupa categorie
 GET {{baseUrl}}/api/products?category=React
 
+### Cautare dupa titlu sau autor
+GET {{baseUrl}}/api/products?search=react
+
+### Sortare dupa pret crescator
+GET {{baseUrl}}/api/products?sort=price_asc
+
+### Sortare dupa pret descrescator
+GET {{baseUrl}}/api/products?sort=price_desc
+
+### Sortare dupa titlu A-Z
+GET {{baseUrl}}/api/products?sort=title_asc
+
+### Sortare dupa titlu Z-A
+GET {{baseUrl}}/api/products?sort=title_desc
+
+### Cele mai noi
+GET {{baseUrl}}/api/products?sort=newest
+
+### Combinare categorie + cautare + sortare
+GET {{baseUrl}}/api/products?category=React&search=react&sort=price_asc
+
+### Produse recomandate - functionalitate din L2
+GET {{baseUrl}}/api/products?featured=true
+
 ### Un singur produs
 GET {{baseUrl}}/api/products/3
 
@@ -17,3 +41,12 @@ GET {{baseUrl}}/api/products/abc
 
 ### Produs inexistent - 404
 GET {{baseUrl}}/api/products/999
+
+### Sortare invalida - 400
+GET {{baseUrl}}/api/products?sort=gresit
+
+### Categorii
+GET {{baseUrl}}/api/categories
+
+### Ruta inexistenta - 404
+GET {{baseUrl}}/api/nu-exista
